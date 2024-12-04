@@ -10,7 +10,7 @@
 
     <div class="section highlight">
         <h2>Descripción General del Sistema</h2>
-        <p>Este proyecto documenta el diseño e implementación de un sistema para medir temperatura mediante un sensor NTC 10K, integrado con un puente de Wheatstone, un amplificador, y un Arduino para procesar los datos y mostrarlos en una pantalla LCD.</p>
+        <p>Este proyecto documenta el diseño e implementación de un sistema para medir temperatura, combinando un sensor NTC de 10K con un puente de Wheatstone, un amplificador OTA, y un Arduino para procesar y visualizar los datos en una pantalla LCD. El sensor NTC convierte las variaciones de temperatura en cambios de resistencia, que el puente de Wheatstone traduce en una señal de voltaje proporcional. Esta señal se amplifica mediante un OTA, al cual se le aplica un offset de 6V generado con un LM358N para garantizar que la salida permanezca en el rango adecuado. Otro LM358N se utilizó para reducir la señal amplificada del OTA de 6V a 1V, permitiendo que el pin A0 del Arduino la procese correctamente. Además, se emplearon circuitos con LM358N para generar 5V estables para la alimentación del Arduino y los componentes digitales, asegurando un funcionamiento preciso y confiable de todo el sistema. Finalmente, el Arduino convierte la señal de voltaje en una lectura de temperatura, que se muestra en tiempo real en una pantalla LCD.</p>
     </div>
 
     <div class="section">
@@ -59,6 +59,10 @@
             <li><strong>Conversión Arduino:</strong>
                 <p>El Arduino lee el voltaje y lo convierte a temperatura mediante una ecuación calibrada.</p>
             </li>
+            <li><strong>Circuitos de Fuentes de Alimentación:</strong>
+                <p>Para garantizar un funcionamiento estable del sistema, se diseñaron dos circuitos de fuentes de alimentación. Un divisor de tensión con LM358N proporciona 5V estables para alimentar el Arduino, mientras que otro LM358N genera 6V para aplicar un offset a la señal del amplificador OTA. Esto asegura que la señal de salida esté dentro de un rango adecuado para ser procesada por el Arduino.</p>
+            </li>
+           
         </ol>
     </div>
 

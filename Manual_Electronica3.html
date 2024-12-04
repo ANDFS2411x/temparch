@@ -1,0 +1,147 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Solución de Ingeniería - Medición de Temperatura</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; max-width: 900px; margin: 0 auto; padding: 20px; background-color: #f4f4f4; }
+        h1, h2 { color: #333; border-bottom: 2px solid #3498db; padding-bottom: 10px; }
+        .section { background-color: white; padding: 20px; margin: 15px 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-radius: 8px; }
+        .highlight { background-color: #e6f3ff; padding: 15px; border-left: 5px solid #3498db; }
+        code { background-color: #f1f1f1; padding: 2px 5px; border-radius: 3px; font-family: 'Courier New', monospace; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+    </style>
+</head>
+<body>
+    <h1>Solución de Ingeniería: Sistema de Medición de Temperatura</h1>
+
+    <div class="section highlight">
+        <h2>Descripción General del Sistema</h2>
+        <p>Este proyecto documenta el diseño e implementación de un sistema para medir temperatura mediante un sensor NTC 10K, integrado con un puente de Wheatstone, un amplificador, y un Arduino para procesar los datos y mostrarlos en una pantalla LCD.</p>
+    </div>
+
+    <div class="section">
+        <h2>1. Componentes Principales</h2>
+        <table>
+            <tr>
+                <th>Componente</th>
+                <th>Función</th>
+            </tr>
+            <tr>
+                <td>Sensor NTC 10K</td>
+                <td>Transducción de temperatura a resistencia variable</td>
+            </tr>
+            <tr>
+                <td>Puente de Wheatstone</td>
+                <td>Conversión de cambio de resistencia a señal de voltaje</td>
+            </tr>
+            <tr>
+                <td>Amplificador OTA</td>
+                <td>Acondicionamiento y amplificación de señal</td>
+            </tr>
+            <tr>
+                <td>LM358N</td>
+                <td>Estabilización y reducción de voltaje</td>
+            </tr>
+            <tr>
+                <td>Arduino</td>
+                <td>Conversión de señal analógica a lectura de temperatura</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="section">
+        <h2>2. Diseño del Circuito de Medición</h2>
+        <h3>2.1 Funcionamiento Detallado</h3>
+        <ol>
+            <li><strong>Sensor NTC 10K en Puente de Wheatstone:</strong>
+                <p>El sensor NTC se integra en una configuración de puente de Wheatstone, generando una señal de voltaje proporcional a la temperatura. A medida que la temperatura cambia, también lo hace la resistencia del sensor, desbalanceando el puente y creando un voltaje diferencial.</p>
+            </li>
+            <li><strong>Amplificador OTA:</strong>
+                <p>El amplificador operacional toma la salida del puente de Wheatstone y amplifica la señal para hacerla utilizable por el Arduino. Se alimenta con dos fuentes de 12V y 6V, asegurando un rango dinámico adecuado.</p>
+            </li>
+            <li><strong>Acondicionamiento de Señal:</strong>
+                <p>La señal amplificada se reduce a un rango de 0-5V mediante un divisor de tensión utilizando un LM358N configurado con resistencias precisas de 1kΩ y 5kΩ.</p>
+            </li>
+            <li><strong>Conversión Arduino:</strong>
+                <p>El Arduino lee el voltaje a través de su pin A0 y lo convierte a una temperatura mediante una ecuación calibrada basada en la curva característica del sensor NTC.</p>
+            </li>
+        </ol>
+    </div>
+
+    <div class="section">
+        <h2>3. Circuitos de Fuentes de Alimentación</h2>
+        <h3>3.1 Fuente de 5V (Arduino)</h3>
+        <p>Diseño de un divisor de tensión que toma una entrada de 12V para generar 5V estables, ideales para alimentar el Arduino y otros componentes sensibles.</p>
+        <code>
+V(out) = V(in) * [R2 / (R1 + R2)]
+        </code>
+
+        <h3>3.2 Fuente de 6V (Amplificador)</h3>
+        <p>Divisor de tensión calculado específicamente para alimentar el amplificador operacional OTA con 6V.</p>
+        <code>
+Resistencias utilizadas: R1 = 1kΩ, R2 = 5kΩ
+        </code>
+
+        <h3>3.3 Componentes para Fuentes</h3>
+        <ul>
+            <li>Resistencias de precisión (1% tolerancia)</li>
+            <li>LM358N</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>4. Código de Conversión de Temperatura</h2>
+        <pre><code>
+            #include <Wire.h>
+                #include <LiquidCrystal_I2C.h>
+                
+                // Configuración de la pantalla LCD
+                LiquidCrystal_I2C lcd(0x27, 16, 2); // Dirección I2C, columnas y filas del LCD
+                
+                void setup() {
+                  lcd.init();
+                  lcd.backlight();
+                  lcd.print("Iniciando...");
+                  delay(2000);
+                }
+                
+                void loop() {
+                  int sensorValue = analogRead(A0);  // Leer el valor analógico
+                  float voltage = (sensorValue / 1023.0) * 5.0; // Convertir a voltaje (0-5V)
+                
+                  // Aplicar la ecuación para convertir a temperatura
+                  float temperature = (voltage + 0.4762) / 0.0644;
+                
+                  // Mostrar en la LCD
+                  lcd.clear();
+                  lcd.setCursor(0, 0);
+                  lcd.print("Temp:");
+                  lcd.setCursor(6, 0);
+                  lcd.print(temperature, 2); // Mostrar con 2 decimales
+                  lcd.print(" C");
+                
+                  delay(500); // Actualizar cada 500 ms
+                }
+                
+        </code></pre>
+        <p>Este código realiza la lectura del voltaje proporcionado por el divisor de tensión, lo convierte a una temperatura y la muestra en una pantalla LCD de 16x2.</p>
+    </div>
+
+    <div class="section">
+        <h2>5. Consideraciones Finales</h2>
+        <ul>
+            <li>Calibración precisa del sistema mediante pruebas experimentales con valores conocidos de temperatura.</li>
+            <li>Uso de resistencias de precisión para mejorar la estabilidad de los circuitos divisores de tensión.</li>
+            <li>Implementación de FUSIBLES.</li>
+            <li>Optimización del código para reducir consumo de memoria en el Arduino.</li>
+        </ul>
+    </div>
+
+    <footer>
+        <p>Proyecto de Electrónica 3 - Medición de Temperatura | Documentado por el Equipo</p>
+    </footer>
+</body>
+</html>
